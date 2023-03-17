@@ -1,0 +1,3 @@
+# Exclude the following files to make this a Python project
+*.sh linguist-vendored=true
+*.nsi linguist-vendored=true

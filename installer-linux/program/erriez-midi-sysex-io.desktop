@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Erriez MIDI SYSEX-IO App
+GenericName=Erriez MIDI SYSEX-IO App
+Comment=A MIDI SYSEX-IO application created by Erriez
+Icon=
+Exec=
+Categories=PySide6;Utility;
+Keywords=Erriez;PySide6;MIDI;SYSEX;
+Terminal=false
+MimeType=application/erriez-midi-sysex-io;

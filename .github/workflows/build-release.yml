@@ -1,0 +1,245 @@
+name: Erriez MIDI SYSEX-IO build and release
+
+on:
+  push:
+    branches: [ main, staging/erriez/* ]
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    branches: [ main, staging/erriez/* ]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v3
+
+      - name: Get tag
+        id: tag
+        uses: Erriez/action-get-tag@v1.0.1
+        with:
+          strip_v: true # Remove v character from version
+          default: v0.0.0 # Default version when tag not found
+
+      - name: Install Linux system dependencies
+        run: |
+          # APT update
+          sudo apt update
+
+          # Install Pyside6 system dependencies
+          # https://doc.qt.io/qt-6/linux-requirements.html
+          sudo apt install -y \
+            libfontconfig1-dev \
+            libfreetype6-dev \
+            libx11-dev \
+            libx11-xcb-dev \
+            libxext-dev \
+            libxfixes-dev \
+            libxi-dev \
+            libxrender-dev \
+            libxkbcommon-dev \
+            libxkbcommon-x11-dev \
+            libatspi2.0-dev \
+            '^libxcb.*-dev'
+
+          # Install Nuitka dependencies
+          sudo apt install -y ccache clang patchelf
+          
+          # Install python-rtmidi dependencies
+          sudo apt install libasound2-dev libjack-dev
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          architecture: 'x64'
+          cache: 'pip'
+          cache-dependency-path: |
+            **/requirements*.txt
+
+      - name: Setup virtualenv
+        run: |
+          pip install -r requirements.txt
+
+      - name: Save version.txt
+        run: |
+          echo "${{steps.tag.outputs.tag}}" > data/version.txt
+          echo "Contents data/version.txt:"
+          cat data/version.txt
+
+      - name: Save website.url
+        run: |
+          echo "[InternetShortcut]" > website.url
+          echo "URL=${{github.server_url}}/${{github.repository}}" >> website.url
+          cat website.url
+
+      - name: Build Linux executable
+        if: runner.os == 'Linux'
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          script-name: main.py
+          output-dir: .
+          output-file: erriez-midi-sysex-io-linux
+          include-data-dir: images=images,data=data
+          standalone: true
+          onefile: true
+          enable-plugins: pyside6
+
+      - name: Create Linux installer
+        run: |
+          # Install Linux system dependencies
+          sudo apt install makeself
+          
+          # Copy executable to installer directory
+          cp erriez-midi-sysex-io-linux installer-linux/program/erriez-midi-sysex-io
+
+          # Create Linux installer
+          OUTPUT_FILE=erriez-midi-sysex-io-linux-setup.run
+          installer-linux/create_linux_installer.sh ${OUTPUT_FILE}
+
+          # Check if file exists
+          if [ ! -f "$OUTPUT_FILE" ]; then
+            echo "OUTPUT_FILE does not exist."
+            exit 1
+          fi
+
+      - name: Create executable hashes
+        run: |
+          sha1sum erriez-midi-sysex-io-linux > erriez-midi-sysex-io-linux.sha1
+          sha1sum erriez-midi-sysex-io-linux-setup.run > erriez-midi-sysex-io-linux-setup.run.sha1
+          cat erriez-midi-sysex-io-linux.sha1
+          cat erriez-midi-sysex-io-linux-setup.run.sha1
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Linux Build
+          if-no-files-found: error
+          path: |
+            LICENSE
+            website.url
+            erriez-midi-sysex-io-linux
+            erriez-midi-sysex-io-linux.sha1
+            erriez-midi-sysex-io-linux-setup.run
+            erriez-midi-sysex-io-linux-setup.run.sha1
+
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v3
+
+      - name: Get tag
+        id: tag
+        uses: Erriez/action-get-tag@v1.0.1
+        with:
+          strip_v: true # Remove v character from version
+          default: v0.0.0 # Default version when tag not found
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          architecture: 'x64'
+          cache: 'pip'
+          cache-dependency-path: |
+            **/requirements*.txt
+
+      - name: Setup virtualenv
+        run: |
+          pip install -r requirements.txt
+
+      - name: Save version.txt
+        run: |
+          echo "${{steps.tag.outputs.tag}}" > data\version.txt
+          echo "Contents data\version.txt:"
+          cat data\version.txt
+
+      - name: Save website.url
+        run: |
+          echo "[InternetShortcut]" > website.url
+          echo "URL=${{github.server_url}}/${{github.repository}}" >> website.url
+          cat website.url
+
+      - name: Build Windows executable
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          script-name: main.py
+          output-dir: .
+          output-file: erriez-midi-sysex-io.exe
+          include-data-dir: images=images,data=data
+          standalone: true
+          onefile: true
+          disable-console: true
+          windows-icon-from-ico: images/midi.ico
+          enable-plugins: pyside6
+
+      - name: Create Windows NSIS installer
+        uses: joncloud/makensis-action@v4
+        with:
+          script-file: "install.nsi"
+          arguments: "/V4 /DVERSION=${{steps.tag.outputs.tag}}"
+
+      - name: Create executable hashes
+        run: |
+          sha1sum erriez-midi-sysex-io.exe > erriez-midi-sysex-io.exe.sha1
+          sha1sum erriez-midi-sysex-io-setup.exe > erriez-midi-sysex-io-setup.exe.sha1
+          cat erriez-midi-sysex-io.exe.sha1
+          cat erriez-midi-sysex-io-setup.exe.sha1
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Windows Build
+          if-no-files-found: error
+          path: |
+            LICENSE
+            website.url
+            erriez-midi-sysex-io.exe
+            erriez-midi-sysex-io.exe.sha1
+            erriez-midi-sysex-io-setup.exe
+            erriez-midi-sysex-io-setup.exe.sha1
+
+  release:
+    name: "Create Github release"
+    needs: [ build-linux, build-windows ]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v3
+
+      - name: Download and extract artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Display structure of downloaded files
+        run: |
+          ls -R
+
+      - name: Add files to Github release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            LICENSE
+            ${{ github.workspace }}/artifacts/Linux Build/erriez-midi-sysex-io-linux
+            ${{ github.workspace }}/artifacts/Linux Build/erriez-midi-sysex-io-linux.sha1
+            ${{ github.workspace }}/artifacts/Linux Build/erriez-midi-sysex-io-linux-setup.run
+            ${{ github.workspace }}/artifacts/Linux Build/erriez-midi-sysex-io-linux-setup.run.sha1
+            ${{ github.workspace }}/artifacts/Windows Build/erriez-midi-sysex-io.exe
+            ${{ github.workspace }}/artifacts/Windows Build/erriez-midi-sysex-io.exe.sha1
+            ${{ github.workspace }}/artifacts/Windows Build/erriez-midi-sysex-io-setup.exe
+            ${{ github.workspace }}/artifacts/Windows Build/erriez-midi-sysex-io-setup.exe.sha1
+
+      - name: Set GitHub release description
+        uses: Roang-zero1/github-create-release-action@v3
+        with:
+          update_existing: true
+          version_regex: ^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
