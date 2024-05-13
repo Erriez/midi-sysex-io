@@ -51,7 +51,7 @@ jobs:
           sudo apt install libasound2-dev libjack-dev
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
           architecture: 'x64'
@@ -140,7 +140,7 @@ jobs:
           default: v0.0.0 # Default version when tag not found
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
           architecture: 'x64'
