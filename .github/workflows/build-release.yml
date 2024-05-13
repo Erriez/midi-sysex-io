@@ -113,7 +113,7 @@ jobs:
           cat erriez-midi-sysex-io-linux-setup.run.sha1
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Linux Build
           if-no-files-found: error
@@ -191,7 +191,7 @@ jobs:
           cat erriez-midi-sysex-io-setup.exe.sha1
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Windows Build
           if-no-files-found: error
