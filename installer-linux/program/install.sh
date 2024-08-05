@@ -7,7 +7,7 @@ APP_ICO=midi.ico
 APP_SHORTCUT=${APP_EXE}.desktop
 APP_DEVELOPER=erriez
 
-EXE_PATH=$HOME/.local/bin/${APP_DEVELOPER}
+EXE_PATH=$HOME/.local/bin/${APP_DEVELOPER}/${APP_EXE}
 ICON_PATH=$HOME/.local/share/icons
 SHORTCUT_PATH=$HOME/.local/share/applications
 
