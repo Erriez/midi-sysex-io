@@ -62,21 +62,15 @@ SYSEX_KN2000_CMP = bytes([0xf0, 0x50, 0x2d, 0x01, 0x18, 0x10, 0x50])
 SYSEX_KN2000_SEQ = bytes([0xf0, 0x50, 0x2d, 0x01, 0x18, 0x10, 0x60])
 
 
-# Find images with Nuitka build option "--include-data-dir=src=dst"
-def resource_path(filename):
-    # Get the absolute path of the directory containing the executable
-    exe_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # Construct the path to the dst file
-    dst_path = os.path.join(exe_dir, filename)
-
-    # Return the image path
-    return dst_path
+# Path to data and images relative from this script directory
+# Used by running Python source and Nuitka deployment executable
+path_data = os.path.join(Path(__file__).resolve().parent, 'data')
+path_images = os.path.join(Path(__file__).resolve().parent, 'images')
 
 
 def get_app_version():
     app_version = 'Unknown'
-    version_file = resource_path(r'data/version.txt')
+    version_file = os.path.join(path_data, 'version.txt')
     if version_file:
         try:
             with open(version_file, 'r') as f:
@@ -486,7 +480,7 @@ class MainWindow(QMainWindow):
         # Set window title
         self.setWindowTitle('{} v{} by {}'.format(APP_NAME, get_app_version(), APP_DEVELOPER))
         # Set window icon
-        self.setWindowIcon(QIcon(os.path.join(path, 'images', 'midi.png')))
+        self.setWindowIcon(QIcon(os.path.join(path_images, 'midi.png')))
 
         self.lbl_midi_in = QLabel('MIDI IN:')
         self.lbl_midi_out = QLabel('MIDI OUT:')
@@ -530,22 +524,22 @@ class MainWindow(QMainWindow):
         menubar = self.menuBar()
 
         # Add File menu
-        self.file_new_action = QAction(QIcon(os.path.join(path, 'images', 'new.png')), '&New', self)
+        self.file_new_action = QAction(QIcon(os.path.join(path_images, 'new.png')), '&New', self)
         self.file_new_action.setShortcut('Ctrl+N')
         self.file_new_action.triggered.connect(self.file_new)
 
-        self.file_open_action = QAction(QIcon(os.path.join(path, 'images', 'open.png')), '&Open', self)
+        self.file_open_action = QAction(QIcon(os.path.join(path_images, 'open.png')), '&Open', self)
         self.file_open_action.setShortcut('Ctrl+O')
         self.file_open_action.setStatusTip('Open SYSEX file')
         self.file_open_action.triggered.connect(self.file_open)
 
-        self.file_save_action = QAction(QIcon(os.path.join(path, 'images', 'save.png')), '&Save', self)
+        self.file_save_action = QAction(QIcon(os.path.join(path_images, 'save.png')), '&Save', self)
         self.file_save_action.setShortcut('Ctrl+S')
         self.file_save_action.setStatusTip('Save SYSEX to file')
         self.file_save_action.setEnabled(False)
         self.file_save_action.triggered.connect(self.file_save)
 
-        self.file_exit_action = QAction(QIcon(os.path.join(path, 'images', 'exit.png')), '&Exit', self)
+        self.file_exit_action = QAction(QIcon(os.path.join(path_images, 'exit.png')), '&Exit', self)
         self.file_exit_action.setShortcut('Ctrl+Q')
         self.file_exit_action.setStatusTip('Exit application')
         self.file_exit_action.triggered.connect(self.close)
@@ -576,18 +570,18 @@ class MainWindow(QMainWindow):
         menu_edit.addAction(self.select_all_action)
 
         # Add MIDI menu
-        self.transmit_sysex_action = QAction(QIcon(os.path.join(path, 'images', 'sysex_transmit.png')),
+        self.transmit_sysex_action = QAction(QIcon(os.path.join(path_images, 'sysex_transmit.png')),
                                              '&Transmit SYSEX', self)
         self.transmit_sysex_action.setShortcut('Ctrl+T')
         self.transmit_sysex_action.setStatusTip('Transmit SYSEX to device')
         self.transmit_sysex_action.setEnabled(False)
         self.transmit_sysex_action.triggered.connect(self.midi_transmit_sysex)
-        self.receive_sysex_action = QAction(QIcon(os.path.join(path, 'images', 'sysex_receive.png')),
+        self.receive_sysex_action = QAction(QIcon(os.path.join(path_images, 'sysex_receive.png')),
                                             '&Receive SYSEX', self)
         self.receive_sysex_action.setShortcut('Ctrl+R')
         self.receive_sysex_action.setStatusTip('Receive SYSEX from device')
         self.receive_sysex_action.triggered.connect(self.midi_receive_sysex)
-        self.midi_refresh_action = QAction(QIcon(os.path.join(path, 'images', 'midi.png')), '&Refresh ports', self)
+        self.midi_refresh_action = QAction(QIcon(os.path.join(path_images, 'midi.png')), '&Refresh ports', self)
         self.midi_refresh_action.setShortcut('F5')
         self.midi_refresh_action.setStatusTip('Refresh MIDI ports')
         self.midi_refresh_action.triggered.connect(self.midi_refresh_ports)
@@ -614,12 +608,12 @@ class MainWindow(QMainWindow):
         menu_view.addAction(self.view_statistics_action)
 
         # Add Help menu
-        self.help_action = QAction(QIcon(os.path.join(path, 'images', 'web.png')), '&Help', self)
+        self.help_action = QAction(QIcon(os.path.join(path_images, 'web.png')), '&Help', self)
         self.help_action.setShortcut('F1')
         self.help_action.setStatusTip('Open developers website on Github')
         self.help_action.triggered.connect(self.help_website)
 
-        self.about_action = QAction(QIcon(os.path.join(path, 'images', 'about.png')), '&About', self)
+        self.about_action = QAction(QIcon(os.path.join(path_images, 'about.png')), '&About', self)
         self.about_action.setShortcut('Ctrl+?')
         self.about_action.setStatusTip('About application')
         self.about_action.triggered.connect(self.help_about)

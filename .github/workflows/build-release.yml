@@ -82,7 +82,9 @@ jobs:
           script-name: main.py
           output-dir: .
           output-file: erriez-midi-sysex-io-linux
-          include-data-dir: images=images,data=data
+          include-data-dir: |
+            images=images
+            data=data
           standalone: true
           onefile: true
           enable-plugins: pyside6
@@ -170,7 +172,9 @@ jobs:
           script-name: main.py
           output-dir: .
           output-file: erriez-midi-sysex-io.exe
-          include-data-dir: images=images,data=data
+          include-data-dir: |
+            images=images
+            data=data
           standalone: true
           onefile: true
           disable-console: true
