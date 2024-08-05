@@ -156,6 +156,37 @@ Windows Defender and virusscanners such as https://www.virustotal.com/ shows
 false positives when building executable with Pyinstaller or Nuitka. This is a
 known issue.
 
+## Build executable locally
+
+Linux build example:
+
+```bash
+# Install Nuitka dependencies
+$ sudo apt install -y ccache clang patchelf
+
+# Install python-rtmidi dependencies
+$ sudo apt install libasound2-dev libjack-dev
+
+# Setup virtualenv
+$ virtualenv venv
+$ . venv/bin/activate
+$ pip install -r requirements.txt
+$ pip install nuitka
+
+# Build executable
+$ python -m nuitka \
+  --onefile \
+  --plugin-enable=pyside6 \
+  --include-data-dir=images=images \
+  --include-data-dir=data=data \
+  --windows-console-mode=disable \
+  --output-filename=erriez-midi-sysex-io-linux \
+  main.py
+
+# Run executable
+$ ./erriez-midi-sysex-io-linux
+```
+
 ## MIT License
 
 This project is published under [MIT license](https://github.com/Erriez/midi-sysex-io/blob/master/LICENSE)
