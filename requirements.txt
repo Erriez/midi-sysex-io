@@ -1,4 +1,4 @@
 distro==1.9.0
 python-rtmidi==1.5.8
 PySide6==6.8.0.2
-tqdm==4.66.6
+tqdm==4.67.0
