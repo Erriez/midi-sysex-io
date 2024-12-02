@@ -77,8 +77,9 @@ jobs:
 
       - name: Build Linux executable
         if: runner.os == 'Linux'
-        uses: Nuitka/Nuitka-Action@main
+        uses: Nuitka/Nuitka-Action@v1.1
         with:
+          nuitka-version: 2.4.11
           script-name: main.py
           output-dir: .
           output-file: erriez-midi-sysex-io-linux
@@ -167,8 +168,9 @@ jobs:
           cat website.url
 
       - name: Build Windows executable
-        uses: Nuitka/Nuitka-Action@main
+        uses: Nuitka/Nuitka-Action@v1.1
         with:
+          nuitka-version: 2.4.11
           script-name: main.py
           output-dir: .
           output-file: erriez-midi-sysex-io.exe
