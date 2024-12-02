@@ -77,17 +77,16 @@ jobs:
 
       - name: Build Linux executable
         if: runner.os == 'Linux'
-        uses: Nuitka/Nuitka-Action@v1.1
+        uses: Nuitka/Nuitka-Action@v1.2
         with:
-          nuitka-version: 2.4.11
+          nuitka-version: 2.5.5
           script-name: main.py
           output-dir: .
           output-file: erriez-midi-sysex-io-linux
           include-data-dir: |
             images=images
             data=data
-          standalone: true
-          onefile: true
+          mode: standalone
           enable-plugins: pyside6
 
       - name: Create Linux installer
@@ -168,17 +167,16 @@ jobs:
           cat website.url
 
       - name: Build Windows executable
-        uses: Nuitka/Nuitka-Action@v1.1
+        uses: Nuitka/Nuitka-Action@v1.2
         with:
-          nuitka-version: 2.4.11
+          nuitka-version: 2.5.5
           script-name: main.py
           output-dir: .
           output-file: erriez-midi-sysex-io.exe
           include-data-dir: |
             images=images
             data=data
-          standalone: true
-          onefile: true
+          mode: standalone
           disable-console: true
           windows-icon-from-ico: images/midi.ico
           enable-plugins: pyside6
